@@ -1,16 +1,26 @@
 import * as esbuild from "esbuild-wasm";
 import { useState, useEffect } from "react";
 import { unpkgPathPlugin } from "./plugins/unpkg-path-plugin";
+import { fetchPlugin } from "./plugins/fetch-plugin";
 
 const App = () => {
   const [input, setInput] = useState<string>("");
   const [code, setCode] = useState<string>("");
 
   const startService = async () => {
-    await esbuild.initialize({
-      worker: true,
-      wasmURL: "/esbuild.wasm",
-    });
+    // Avoid calling initialize() more than once
+    try {
+      esbuild.build({});
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("initialize")) {
+        await esbuild.initialize({
+          worker: true,
+          wasmURL: "node_modules/esbuild-wasm/esbuild.wasm",
+        });
+      } else {
+        throw error;
+      }
+    }
   };
 
   useEffect(() => {
@@ -22,7 +32,7 @@ const App = () => {
       entryPoints: ["index.js"],
       bundle: true,
       write: false,
-      plugins: [unpkgPathPlugin()],
+      plugins: [unpkgPathPlugin(), fetchPlugin(input)],
       define: {
         global: "window",
       },

@@ -4,13 +4,18 @@ export const unpkgPathPlugin = () => {
   return {
     name: "unpkg-path-plugin",
     setup(build: esbuild.PluginBuild) {
-      build.onResolve({ filter: /.*/ }, async (args: esbuild.OnResolveArgs) => {
-        console.log("onResole", args);
-        if (args.path === "index.js") {
+      // Handle root entry file "index.js"
+      build.onResolve(
+        { filter: /(^index\.js$)/ },
+        (args: esbuild.OnResolveArgs) => {
           return { path: args.path, namespace: "a" };
         }
+      );
 
-        if (args.path.includes("./")) {
+      // Handle relative paths in a module
+      build.onResolve(
+        { filter: /^\.\.?\/\w+/ },
+        (args: esbuild.OnResolveArgs) => {
           return {
             path: new URL(
               args.path,
@@ -19,30 +24,13 @@ export const unpkgPathPlugin = () => {
             namespace: "a",
           };
         }
+      );
 
+      // Handle exact main file of a module
+      build.onResolve({ filter: /.*/ }, (args: esbuild.OnResolveArgs) => {
         return {
           path: `https://www.unpkg.com/${args.path}`,
           namespace: "a",
-        };
-      });
-
-      build.onLoad({ filter: /.*/ }, async (args: esbuild.OnLoadArgs) => {
-        if (args.path === "index.js") {
-          return {
-            loader: "jsx",
-            contents: `
-              import { useState } from 'react';
-              console.log(useState);
-            `,
-          };
-        }
-
-        const response = await fetch(args.path);
-        const data = await response.text();
-        return {
-          loader: "jsx",
-          contents: data,
-          resolveDir: new URL("./", response.url).pathname,
         };
       });
     },
