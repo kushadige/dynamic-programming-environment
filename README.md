@@ -28,7 +28,7 @@
 
 ## Dependencies
 
-[esbuild.github.io](esbuild.github.io)
+[esbuild.github.io](https://esbuild.github.io/)
 
 react  
 esbuild
