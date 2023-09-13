@@ -35,6 +35,8 @@
   - Can store large amounts of data
   - Data persists even when you close the browser
   - Data is organized by keys and values
+      
+  <img width="1456" alt="Ekran Resmi 2023-09-13 08 32 24" src="https://github.com/kushadige/dynamic-programming-environment/assets/101992799/8d3cb797-b5e3-401c-b79e-c49e1e9bc936">
 
 ## Dependencies
 
